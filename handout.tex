@@ -1,0 +1,154 @@
+% arara: lualatex
+% arara: lualatex
+% Typeset using lualatex
+
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{luainputenc}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+
+\usepackage[english]{babel}
+
+\usepackage{fouriernc}
+\usepackage{tgpagella}
+\usepackage{xcolor}
+\usepackage[activate=true]{microtype}
+\usepackage{amssymb}
+\usepackage{fontspec}
+\usepackage{titling}
+\usepackage{titlesec}
+
+\usepackage{calc}
+\usepackage{multicol}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{siunitx}
+\usepackage{colortbl}
+\usepackage[a4paper,margin=2cm,top=1cm]{geometry}
+
+\setmainfont[Numbers=OldStyle]{TeX Gyre Pagella}
+
+\definecolor{plhome}{HTML}{CCEEFF}
+\definecolor{silver}{HTML}{DDDDDD}
+
+\pagestyle{empty}
+
+\parskip=1ex
+\parindent=0pt
+
+\setlist[enumerate,1]{start=0}
+
+\newcommand\plpage{
+    \newpage
+    \begin{tikzpicture}[remember picture,overlay]
+        \node[opacity=0.1,below left,xshift=1cm,yshift=1cm] at (current page.north east) {\includegraphics[width=12cm]{logo}};
+    \end{tikzpicture}
+}
+
+\newcommand\answerspace{\\\rule[0cm]{0pt}{1cm}}
+
+\newcommand\True{\texttt{True}}
+\newcommand\False{\texttt{False}}
+
+\newcommand\startsection[1]{
+     \vspace{0.2ex}
+    \hrule
+    {\fontspec{Oxygen} \tiny
+     \vspace{-1ex}
+     \emph{#1}
+     \vspace{-1.5em}
+    }
+}
+
+\newfontfamily\headingfont[]{Bree Serif}
+\titleformat*{\section}{\LARGE\headingfont}
+
+\begin{document}
+
+\plpage
+
+\section*{System setup for MicroPython ESP32 hacking}
+
+\begin{enumerate}
+\item Get Fedora. If you don't have Fedora, prepare for a slightly worse experience. Open up a terminal.
+
+\end{enumerate}
+
+\startsection{System setup. Use your favorite option to install packages, such as \texttt{dnf install}.}
+
+\begin{enumerate}[resume]
+
+\item \texttt{dnf install picocom ampy}.
+      If you don't have such packages in your non-Fedora system,
+      \texttt{screen} would do instead of \texttt{picoccom},
+      and \texttt{ampy} can be installed via \texttt{python3 -m pip install --user adafruit-ampy}.
+
+\item Get yourself to the \texttt{dialout} group.
+      You can use \texttt{usermod -a -G \$(whoami)},
+      but make sure to login again after that
+      (can be tricked by \texttt{su - \$(whoami)}).
+      Verify that you are in the group by running the \texttt{groups} command.
+      The \texttt{dialout} group is historically designed for modems
+      and gives you full and direct access to serial ports.
+
+\item You need the drivers. If you are using Linux, you have them.
+      If you are not using Linux, may the force be with you
+      (ask booth attendants for help).
+
+\end{enumerate}
+
+
+\startsection{Talking to the board.}
+
+\begin{enumerate}[resume]
+
+\item Connect the board with ESP32 (XXX board name?) via an USB cable.
+      Sometimes, the cable or even the board can be faulty,
+      use \texttt{dmesg | tail} to verify your system can actually see the board.
+      Ask for help if it doesn't.
+
+\item Use \texttt{picocom} to get the interactive interpreter.
+      The full command is \texttt{picocom -b 115200 --flow n /dev/ttyUSB0}.
+      The first number specifies the baud rate -- a speed of communication over serial line,
+      all our EPS32 boards communicate using this baud rate.
+      We disable the flow control of the serial-port.
+      That should be the default,
+      but explicit is better than implicit.
+      Lastly, we connect to \texttt{/dev/ttyUSB0}.
+      That's the file representing our device (or the serial line to it).
+      The filename may be different, consult the \texttt{dmesg | tail} output.
+      If you need to use \texttt{screen},
+      the command is \texttt{screen /dev/ttyUSB0 115200}.
+
+\item You should see \texttt{Terminal ready}.
+      Pres Enter and the MicroPython's interactive prompt with \texttt{>>>} should appear.
+      If you see wall of random characters instead,
+      locate and press the \emph{EN} button on the device
+      (it's near the USB port).
+
+\item Experiment with the interactive Python prompt. Is that Python?
+      Can you \texttt{print} stuff? Is something missing?
+      You can use \texttt{Ctrl+e} to activate the paste mode
+      in case you prefer to write the code in your favorite text editor.
+
+\item To exit \texttt{picocom}, hold the \texttt{Ctrl} key, press \texttt{a},
+      then \texttt{x} and lift the \texttt{Ctrl} key.
+      Alternatively, unplug the board.
+
+\startsection{The board's filesystem.}
+
+\item The board has a simple filesystem.
+      To execute a file on the board when the board starts,
+      save the file as \texttt{main.py}.
+      Use \texttt{ampy -p /dev/ttyUSB0 put main.py} to put the file into the board.
+      When you connect via \texttt{picocom}, press the \emph{EN} button to see
+      what is happening. Use \texttt{Ctrl+c} to interrupt a running program.
+      Use \texttt{ampy -p /dev/ttyUSB0 rm main.py} to get rid of the file.
+      Explore \texttt{ampy --help} to see what else is possible.
+
+\item Congratulations, you've made it! Now you are ready to pick a task.
+    Don't forget to ask for the Fedora Loves Python sticker as a reward for your efforts.
+
+\end{enumerate}
+
+\end{document}
