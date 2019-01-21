@@ -39,13 +39,6 @@
 
 \setlist[enumerate,1]{start=0}
 
-\newcommand\plpage{
-    \newpage
-    \begin{tikzpicture}[remember picture,overlay]
-        \node[opacity=0.1,below left,xshift=1cm,yshift=1cm] at (current page.north east) {\includegraphics[width=12cm]{../logo}};
-    \end{tikzpicture}
-}
-
 \newcommand\answerspace{\\\rule[0cm]{0pt}{1cm}}
 
 \newcommand\True{\texttt{True}}
@@ -66,8 +59,6 @@
 
 \begin{document}
 
-\plpage
-
 \section*{Blinking LED with MicroPython on ESP32}
 
 \begin{enumerate}
@@ -75,35 +66,42 @@
 
 \end{enumerate}
 
-\startsection{Controlling the LED.}
+\section*{Controlling the LED}
 
 \begin{enumerate}[resume]
 
-\item MicroPython allows you to read or control several pins.
-      To do that, you need to import the \texttt{Pin} class
-      with \texttt{from machine import Pin}.
+\item MicroPython allows you to control the microcontroller's \emph{pins},
+      to which other devices are connected.
+      To do that, you need to import the \texttt{Pin} class with:
 
-\item A pin can serve as a binary data input or output.
-      On hardware side, imagine there either is electricity or there isn't.
-      On software side you can either read \emph{zero} or \emph{one} from the pin
-      or write that information into it.
-      To write the information you initialize a \texttt{Pin} object with
-      \texttt{Pin(number, Pin.OUT)}.
-      The integrated \emph{Light Emitting Diode} (LED) is available on pin number 2.
-      Save a variable with the pin, such as \texttt{led = Pin(2, Pin.OUT)}
+      \texttt{from machine import Pin}.
 
-\item Set 1 to turn the light on: \texttt{led.value(1)}
+\item A pin can serve as a binary input/output.
+      On the hardware side, imagine there either is electricity or there isn't.
+      On the software side, you can either read \texttt{0} or \texttt{1} from an
+      input pin, or write \texttt{0} or \texttt{1} to an output pin.
 
-\item Set 0 to turn the light off: \texttt{led.value(0)}
+      Create an output Pin object for the integrated LED (\emph{Light Emitting Diode}),
+      which is connected to pin \#2, and save it in a variable:
+
+      \texttt{led = Pin(2, Pin.OUT)}
+
+\item Write 1 or 0 to turn the light on or off:
+
+    \texttt{
+        led.value(1) \\
+        led.value(0)
+    }
 
 \end{enumerate}
 
-\startsection{Blinking the LED with a button.}
+\section*{Blinking the LED with a button}
 
 \begin{enumerate}[resume]
 
-\item You'll create a program that turns the LED on when the user is holding a button.
-      To read the value of the \emph{BOOT} button, create an input pin number 0.
+\item Let's create a program that turns the LED on when the user is holding a button.
+      We'll use the integrated \emph{BOOT} button, which is connected to pin number 0.
+      Create an input Pin for it:
 
       \texttt{~~~~button = Pin(0, Pin.IN)}
 
@@ -111,34 +109,46 @@
 
 \item Read the value while holding the \emph{BOOT} button. What is it?
 
+    \textit{
+        The \emph{BOOT} button is next to the USB connector.
+        Don't confuse it with \emph{EN}!
+    }
+
 \item Using an infinite loop, make the LED shine if and only if you hold the button.
 
 \item Change the program so one press of the button switches the light.
-      Is there a problem? How do you check for one press?
+      Is there a problem? How can you check for one press?
 
 \end{enumerate}
 
-\startsection{Blinking the LED with sleep.}
+\section*{Blinking the LED with sleep}
 
 \begin{enumerate}[resume]
 
-\item Let's blink the LED. You can use the \texttt{sleep} function form the \texttt{time} module.
-      Make the LED blink 10 times with a half second interval.
+\item Try out the \texttt{sleep} function form the \texttt{time} module.
+    What does it do?
+
+    \texttt{
+        from time import sleep \\
+        sleep(1/2)
+    }
+
+\item Make the LED blink 10 times with a half-second interval.
 
 \end{enumerate}
 
-\startsection{Blinking with Pulse Width Modulation.}
+\section*{Blinking with Pulse Width Modulation}
 
 \begin{enumerate}[resume]
 
 \item Make the LED blink really fast.
       On for $\frac{1}{1000}$ of a second, off for $\frac{2}{1000}$ of a second.
       What happens? What if you swap the numbers?
-      This is how light intensity is controlled: with fast blinking.
+      This is how light intensity is usually controlled: with fast blinking.
 
 \item Fast blinking with sleep is not very effective.
-      You can use the integrated hardware \emph{Pulse Width Modulation} (PWM).
-      Imagine a rectangular wave as drown here:
+      You can use the integrated hardware \emph{Pulse Width Modulation} (PWM) instead.
+      Imagine a rectangular wave as drawn here:
 
       % https://tex.stackexchange.com/a/113050/51382
       \begin{center}
@@ -148,9 +158,10 @@
       height=.2\textwidth,
       x axis line style={-stealth},
       y axis line style={-stealth},
-      ymax = 1.2,xmax=15,
+      ymax = 1.2, xmax=15,
       axis lines*=center,
-      ytick={0,1},
+      ytick={0},
+      xtick={0},
       xticklabels={},
       xlabel={Time $\rightarrow$},
       ylabel={Value},
@@ -165,17 +176,20 @@
 
       A PWM will change the value of a pin from 0 to 1 and back in a periodic interval.
       The \texttt{PWM} class from the \texttt{machine} module takes 3 arguments:
-      a pin, frequency and duty.
+      a pin, frequency and the duty cycle.
 
       \texttt{~~~~pwm = PWM(led, freq=50, duty=512)}
 
       Frequency determines how fast the LED will blink.
-      Duty determines the proportion of time where the LED is on, where 0 means never and 1023 means always.
+      Duty determines the proportion of time where the LED is on: 0 means never;
+      1023 means always.
       When experimenting, mind the fact that humans don't perceive light intensity linearly.
 
-      With PWM running, you can do other things in Python -- it is not blocking.
+      With a PWM running, you can do other things in Python -- it is not blocking.
       To change a PWM's frequency or duty, use the \texttt{pwm.freq(...)} or \texttt{pwm.duty(...)} methods.
-      To stop a PWM, use the \texttt{pwm.deinit()} method.
+      To stop a PWM, use \texttt{pwm.deinit()}.
+
+      Try it!
 
 \end{enumerate}
 
