@@ -1,0 +1,188 @@
+% arara: lualatex
+% arara: lualatex
+% Typeset using lualatex
+
+\documentclass{../tutorial}
+
+\title{Traffic lights with MicroPython on \abbr{ESP32}}
+
+\begin{document}
+\begin{enumerate}
+
+\item
+    Set up your environment. Ask booth staff for the proper handout.
+    You'll need an \abbr{ESP32} board with an \abbr{RGB} \abbr{LED} stripe and a servomotor.
+
+\section{Controlling an \abbr{RGB} \abbr{LED} stripe}
+
+\item
+    Trough one of the microcontroller's \emph{pins},
+    you are able to control an \abbr{RGB} \abbr{LED} stripe.
+    The \abbr{RGB} \abbr{LED} stripe you have consist of 8 cells,
+    each containing 3 LEDs: a red one, a green one and a blue one.
+
+    Each of those LEDs can vary in intensity from \lstinline|0| to \lstinline|255|
+    and by combining them, you can show a lot of colors.
+    In fact you can create so many colors,
+    that is has been called the \emph{True Color}.
+
+\item
+    MicroPython on the \abbr{ESP32} board already has a high-level class for
+    our LED stripe, called \lstinline|NeoPixel|:
+
+    \begin{lstlisting}
+    from machine import Pin
+    from neopixel import NeoPixel
+    \end{lstlisting}
+
+    In order to setup a \lstinline|NeoPixel| instance,
+    you'll need to provide an output data pin and the number of cells.
+
+    \begin{lstlisting}
+    datapin = Pin(XXX, Pin.OUT)
+    np = NeoPixel(datapin, 8)
+    \end{lstlisting}
+
+\item
+    Write \abbr{RGB} triplets to the object as if it were a list of length 8.
+    To make the \abbr{LED}s actually change their color,
+    use the \lstinline|np.write()| method:
+
+    \begin{lstlisting}
+    np[0] = (255, 112, 68)
+    ...
+    np[7] = (112, 255, 0)
+    np.write()
+    \end{lstlisting}
+
+\item
+    Get yourself familiarized with the stripe and how is it controlled.
+    How do you turn off a cell?
+
+\section{A traffic light}
+
+\item
+    Let's design a traffic light.
+    First, think how a traffic light looks like:
+    It consists of 3 lights, from top to bottom:
+
+    \begin{enumerate}
+    \item red,
+    \item yellow,
+    \item green.
+    \end{enumerate}
+
+\item
+    Imagine the light sequence. This is what happens in the Czech Republic:
+
+    \begin{enumerate}
+    \item red: cars are stopped,
+    \item red \& yellow: get ready,
+    \item green: cars should go,
+    \item yellow: cars should stop.
+    \item (repeat)
+    \end{enumerate}
+
+    Take in mind that usually the yellow phases are quite shorter than the red and green ones.
+
+\item
+    Pick 3 LED cells in a row.
+    Decide where is the top and where is the bottom.
+    For starters, let's make them all shine in their respective colors.
+
+\item
+    Create an infinite loop that simulates a traffic light.
+    Use the \lstinline|sleep| function from the \lstinline|time| module:
+
+    \begin{lstlisting}
+    from time import sleep
+    sleep(1)
+    \end{lstlisting}
+
+    Don't forget to turn off the lights that are not used at the moment.
+
+\item
+    You've made it!
+    Get yourself some swag reward from the booth staff before you turn the page over.
+
+\clearpage
+
+\section{A railroad crossing}
+
+\item
+    Let's design a railroad crossing.
+    First, think how a traffic light looks like:
+    It consists of:
+
+    \begin{itemize}
+    \item 2 red lights on the top,
+    \item 1 white light on the bottom,
+    \item a number of gates (XXX závora? gate?), usually 2 or 4.
+    \end{itemize}
+      
+\item
+    Imagine the sequence. This is what happens in the Czech Republic:
+
+    \begin{enumerate}
+    \item white blinks, cars, cyclists or pedestrians can go,
+    \item white is replaced by blinking reds
+          (switching between each other),
+          everybody should stop,
+    \item the gate(s) go down,
+    \item one or more trains pass,
+    \item the gate(s) go up,
+    \item reds turn off,
+    \item (repeat)
+    \end{enumerate}
+
+    Take in mind that you need some time before lowering the gate,
+    or accidents can happen.
+
+\item
+    Pick 3 LED cells.
+    Either in a row or get creative and carefully twist the stripe to create 2 rows.
+    Decide which cells represent what lights.
+    For starters, let's make them all shine in their respective colors.
+
+\item
+    Create an infinite loop that simulates the railroad crossing traffic light.
+
+\item
+    Let's control the gate.
+    You'll use a servomotor as a gate.
+    A servomotor can be rotated to a particular angle via
+    the hardware \emph{Pulse Width Modulation} (\abbr{PWM}),
+    unfortunately there is no higher level library yet.
+
+    Read the \emph{blinking LED} handout for the theory behind PWM.
+
+    Crete a PWM object from an output pin
+    with 50 Hz frequency and a duty of 50:
+
+    \begin{lstlisting}
+    from machine import Pin, PWM
+
+    servopin = Pin(XXX, Pin.OUT)
+    pwm = PWM(servopin, freq=50, duty=50)
+    \end{lstlisting}
+
+\item
+    To control the angle of your servomotor,
+    set duty from 35 (maximum left) trough 77 (the middle) to 120 (maximum right).
+
+    \begin{lstlisting}
+    pwm.duty(77)
+    \end{lstlisting}
+
+    Get yourself familiarized with controlling the servomotor.
+
+\item
+    Add the gate to the railroad crossing's sequence.
+    Don't forget to wait between starting the red lights and putting the gate down,
+    you don't want anybody to get hurt.
+
+\item
+    You rock! Isn't this awesome?
+
+\end{enumerate}
+\end{document}
