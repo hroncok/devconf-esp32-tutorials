@@ -5,7 +5,7 @@
 
 % Language
 \usepackage[utf8]{luainputenc}
-\usepackage[pdfborder={0 0 0}]{hyperref}  % needs to be early-ish
+\usepackage[pdfborder={0 0 0},pdfusetitle]{hyperref}  % needs to be early-ish
 \usepackage[english]{babel}
 
 % Fonts
@@ -66,10 +66,49 @@
     framerule=0pt,
 }
 
-% Additional commands
+% Additional simple commands
 \newenvironment{comment}{\itshape}{}
 \newcommand\kbd[1]{\texttt{#1}}
-\newcommand\abbr[1]{{\addfontfeature{Numbers=Lining}#1}}
+\newcommand\abbr[1]{{\protect\addfontfeature{Numbers=Lining}#1}}
+
+% Shorthands
+\newcommand\ESP{\abbr{ESP32}}
+
+% Square wave
+\newcommand{\squarevave}[2][]{
+    % https://tex.stackexchange.com/a/113050/51382
+    \begin{tikzpicture}
+        \begin{axis}[
+            width=.6\textwidth,
+            height=.2\textwidth,
+            x axis line style={-stealth},
+            y axis line style={-stealth},
+            ymax = 1.2, xmax=15,
+            axis lines*=center,
+            ytick={0},
+            xtick={0},
+            xticklabels={},
+            xlabel={Time $\rightarrow$},
+            ylabel={Value},
+            xlabel near ticks,
+            ylabel near ticks
+        ]
+            #1
+            \draw[thick,blue]
+                (axis cs:0,0)
+                \foreach \one/\zero in {#2}{
+                    -| (axis cs: \one, 1)
+                    -| (axis cs: \zero, 0)
+                }
+                -| (axis cs:14, 0);
+            \addplot+[mark=none,line width=0pt]
+                coordinates {
+                    (0,0)
+                    (14,0)
+                };
+        \end{axis}
+    \end{tikzpicture}
+}
 
 % Title, ` character for inline code
 \AtBeginDocument{

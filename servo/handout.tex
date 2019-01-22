@@ -1,0 +1,121 @@
+% arara: lualatex
+% arara: lualatex
+% Typeset using lualatex
+
+\documentclass{../tutorial}
+\usepackage{wrapfig}
+
+\title{Turning servos with MicroPython on \abbr{ESP32}}
+
+\begin{document}
+
+\begin{enumerate}
+
+\item
+    You will need a set-up environment and an \ESP32 board
+    with a servo motor.
+
+\section{Some theory}
+
+\item
+    A \emph{servo motor} is a device that can be turned to a specific angle.
+
+    They're used to control airplane flaps, robot arms,
+    camera auto-focus mechaisms, and so on.
+
+    Hobby servos are controlled by \emph{timed pulses}: a controlling pin is
+    set to `1` for a short time, like this:
+
+    \begin{figure}[h]
+        \centering
+        \squarevave{2/2.5}
+    \end{figure}
+
+    \begin{figure}[h]
+        \centering
+        \squarevave{2/4}
+    \end{figure}
+
+    The servo's electronics measure the width (time) of the pulse and
+    turn to an appropriate position.
+
+    After some time, the servo turns off.
+    To reliably keep a given angle,
+    the pulse needs to be repeated like this:
+
+    \begin{figure}[h]
+        \centering
+        \squarevave{0/.5, 3/3.5, 6/6.5, 9/9.5, 12/12.5}
+    \end{figure}
+
+    You've seen this before! That's a square wave.
+    There are nice highter-level libraries for servos,
+    but simple PWM will do just fine today.
+    You just need to set the proper frequency and duty cycle.
+
+    It's possible to calculate these parameters yourself, but we'we done that
+    for you.\footnote{
+        Our servo needs a pulse width of
+        $1 \si{\milli\second}$ to $2 \si{\milli\second}$.
+        With the PWM at $50 \si{\hertz}$, that's:
+
+        \begin{itemize}
+        \item minimum:
+            ${0.001 \si{\second}} \times {50 \si{\hertz}} \times 100\% = 5\%$
+        \item maximum:
+            ${0.002 \si{\second}} \times {50 \si{\hertz}} \times 100\% = 10\%$
+        \end{itemize}
+
+        Converted to the $0...1024$ duty range, that's roughly $50$ to $100$.
+        \emph{Roughly} – these cheap servos aren't too exact.
+    }
+    Use `freq=50` and `duty` between `50` and `100`.
+
+
+\section{Controlling the servo}
+
+\item
+    Create a PWM on pin \#17:
+
+    \begin{lstlisting}
+    from machine import Pin, PWM
+    pwm = PWM(Pin(17, Pin.OUT), freq=50, duty=75)
+    \end{lstlisting}
+
+    Then, set the duty to turn the servo:
+
+    \begin{lstlisting}
+    pwm.duty(50)   # left
+    pwm.duty(75)   # middle
+    pwm.duty(100)  # right
+    \end{lstlisting}
+
+    To control where “middle” is, pull off the white servo arm and re-attach it
+    in a different position.
+
+\item
+    Experiment! But if you decide go beyond these parameters and hear an
+    unusual buzzing sound from the servo, please return to `duty(50)` or reset
+    the board to avoid damaging the servo.
+
+\item
+    Make a metronome!
+
+\item
+    How much time does it take for the servo to turn 90°?
+
+    \begin{comment}
+        The servo doesn't give any notification when it's done turning.
+        You'll need a watch.
+    \end{comment}
+
+\clearpage
+
+% XXX: Temperature gauge
+
+\item
+    Please return the board when you're done experimenting.
+
+
+\end{enumerate}
+\end{document}

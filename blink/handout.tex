@@ -7,10 +7,11 @@
 \title{Blinking LED with MicroPython on \abbr{ESP32}}
 
 \begin{document}
+
 \begin{enumerate}
 
 \item
-    Set up your environment. Ask booth staff for the proper handout.
+    You will need a set-up environment and an \ESP32 board.
 
 \section{Controlling the LED}
 
@@ -91,66 +92,67 @@
 \item
     Make the LED blink 10 times with a half-second interval.
 
-\section{Blinking with Pulse Width Modulation}
-
 \item
     Make the LED blink really fast.
     On for $\frac{1}{1000}$ of a second, off for $\frac{2}{1000}$ of a second.
     What happens? What if you swap the numbers?
-    This is how light intensity is usually controlled: with fast blinking.
 
 \item
-    Fast blinking with sleep is not very effective.
-    You can use the integrated hardware \emph{Pulse Width Modulation} (PWM) instead.
-    Imagine a rectangular wave as drawn here:
+    Fast blinking is a very precise way to control light intensity.
+    Most dimmable\footnote{
+        Capable of shining at varying intensity, not just off and completely on.
+    } lights work exactly this way.
+    It's also useful for other peripherals than just lights.
 
-    % https://tex.stackexchange.com/a/113050/51382
+    Since it's so useful, the \ESP had dedicated \emph{hardware \abbr{PWM}}
+    circuit for blinking.
+
+    Turn the page to learn how to use it.
+
+\clearpage
+
+\section{Blinking with Pulse Width Modulation}
+
+\item
+    If you graph a blinking pin's `value` over time, you get a \emph{square wave}
+    like this:
+
     \begin{figure}[h]
         \centering
-        \begin{tikzpicture}
-            \begin{axis}[
-                width=.6\textwidth,
-                height=.2\textwidth,
-                x axis line style={-stealth},
-                y axis line style={-stealth},
-                ymax = 1.2, xmax=15,
-                axis lines*=center,
-                ytick={0},
-                xtick={0},
-                xticklabels={},
-                xlabel={Time $\rightarrow$},
-                ylabel={Value},
-                xlabel near ticks,
-                ylabel near ticks
-            ]
-                \addplot+[thick,mark=none,const plot]
-                coordinates {
-                    (0,0) (0,1) (2,0) (3,1) (5,0) (6,1) (8,0) (9,1) (11,0)
-                    (12,1) (14,0)
-                };
-            \end{axis}
-        \end{tikzpicture}
+        \squarevave{0/1, 3/4, 6/7, 9/10, 12/13}
     \end{figure}
 
-    A PWM will change the value of a pin from 0 to 1 and back in a periodic interval.
-    The `PWM` class from the `machine` module takes 3 arguments:
-    a pin, frequency and the duty cycle.
+    The integrated hardware \emph{Pulse Width Modulation} (PWM) generates
+    such square waves automatically.
+
+    To control it, create a `PWM` class from the `machine` module.
+    It takes 3 arguments: a pin, frequency and the duty cycle.
 
     \begin{lstlisting}
-        pwm = PWM(led, freq=50, duty=512)
+    from machine import PWM
+    pwm = PWM(led, freq=50, duty=512)
     \end{lstlisting}
 
-    Frequency determines how fast the LED will blink.
-    Duty determines the proportion of time where the LED is on: 0 means never;
-    1023 means always.
-    When experimenting, mind the fact that humans don't perceive light intensity linearly.
+    The frequency (`freq`) determines how fast the LED will blink.
+    The duty determines the proportion of time where the LED is on:
+    0 means never; 1023 means always (100\%).
+    512 means equal time on and off (50\%).
 
-    With a PWM running, you can do other things in Python -- it is not blocking.
+    \begin{comment}
+    When experimenting, mind the fact that humans don't perceive light
+    intensity linearly.
+    A duty cycle of 256 (25\%) is a good “middle” value.
+    \end{comment}
+
+    PWM is not blocking -- you can do other things in Python while it's running.
     To change a PWM's frequency or duty, use the `pwm.freq(...)`
     or `pwm.duty(...)` methods.
     To stop a PWM, use `pwm.deinit()`.
 
     Try it out!
+
+\item
+    Please return the board when you're done experimenting.
 
 \end{enumerate}
 \end{document}
