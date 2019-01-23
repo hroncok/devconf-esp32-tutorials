@@ -1,0 +1,128 @@
+% arara: lualatex
+% arara: lualatex
+% Typeset using lualatex
+
+\documentclass{../tutorial}
+\usepackage{wrapfig}
+
+\title{Turning Stepper motors with MicroPython on \abbr{ESP32}}
+
+\begin{document}
+
+\begin{enumerate}
+
+\item
+    You will need a set-up environment and an \ESP board
+    with a \abbr{ULN2803} chip.
+
+\section{I/O Expander}
+
+XXX
+
+\section{Some theory on stepper motors}
+
+\item
+    A \emph{stepper motor} is a device that rotate in discrete steps.
+
+    Steppers allow precise continuous movement: in printers, 3D printers
+    and plotters, automated window blinds, car window wipers and so on.
+
+    Steppers work by attracting the rotating center, the \emph{rotor}, to
+    strategically placed electromagnets around it.
+
+    \begin{figure}[h]
+    \foreach \angle in {0, 90, 180, 270}{
+        \foreach \n in {1, 2} {
+            \begin{tikzpicture}
+                \node[rotate=-\angle] {
+                    \includegraphics[width=0.1\textwidth]{stepper\n}
+                };
+            \end{tikzpicture}
+        }
+    }
+    \caption{Turning a stepper motor. Active electromagnets are highlighted red.}
+    \end{figure}
+
+    \begin{comment}
+        This is simplified for clarity.
+        There are many variations and improvements on this basic principle.
+    \end{comment}
+
+    There are a few things to watch out for.
+
+    \begin{itemize}
+    \item
+    To allow the motor to turn, you'll need to wait about $1 \si{\milli\second}$
+    after setting the electromagnets.
+
+    \item
+    Eight steps per revolution isn't a lot, so the motor has some gears inside
+    to make the axle turn more slowly.
+    It takes 512 full turns of the rotor to turn the axle around once (360°).
+
+    \item
+    Each of the 4 magnets needs to be controlled by a Pin.
+    That's a lot of pins (especially if you want more motors),
+    so we'll use an IO expander.
+
+    \item
+    We can't drive a motor with I/O pins directly, as
+    the current needed to turn a motor could damage the microcontroller.
+    We have a specialized chip for that: the \abbr{ULN2803}
+    \emph{Darlington array}.
+    It has 8 binary logic (“pin”) inputs and 8 corresponding high-current
+    outputs driven by a dedicated power source (batteries).
+    But software-wise, it works as if the motor was connected directly to
+    the I/O expander.
+    \end{itemize}
+
+\section{Turn a stepper motor}
+
+\item
+    Write a program to drive the motor.
+    Use pins 0-4 on the I/O expander for this.
+
+    You'll need to output the following bit patterns:
+
+    \begin{lstlisting}
+    0001
+    0011
+    0010
+    0110
+    0100
+    1100
+    1000
+    1001
+    \end{lstlisting}
+
+    To make this visible, delay for $100 \si{\milli\second}$ after setting each
+    pattern.
+
+    Let the booth staff check the result and give you a stepper motor
+    to play with.
+
+\item
+    Plug in the motor and reduce the delay to $100 \si{\milli\second}$.
+
+    Turn the motor exactly $90 \si{\degree}$ – that is, cycle through the bit
+    patterns $128$ times.
+
+\item
+    Turn $90 \si{\degree}$ in the opposite direction.
+
+\item
+    Look at the 3D printer at the next booth to see how a stepper's precise
+    turning is converted to linear motion.
+
+\item
+    Make the motor turn continuously.
+
+    Get a second motor, and make it turn at $\frac23$ speed of the first one.
+
+    How would this kind of behavior be useful in a 3D printer?
+
+\item
+     Please return the gadgets when you're done experimenting.
+
+\end{enumerate}
+\end{document}
