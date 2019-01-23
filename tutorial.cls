@@ -71,9 +71,6 @@
 \newcommand\kbd[1]{\texttt{#1}}
 \newcommand\abbr[1]{{\protect\addfontfeature{Numbers=Lining}#1}}
 
-% Shorthands
-\newcommand\ESP{\abbr{ESP32}}
-
 % Square wave
 \newcommand{\squarevave}[2][]{
     % https://tex.stackexchange.com/a/113050/51382
