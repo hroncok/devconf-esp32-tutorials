@@ -1,5 +1,5 @@
 import network
-import sleep
+from time import sleep
 
 wlan = network.WLAN(network.STA_IF)
 wlan.active(True)
