@@ -29,7 +29,6 @@
         \centering
         \squarevave{2/2.5}
     \end{figure}
-
     \begin{figure}[h]
         \centering
         \squarevave{2/4}
@@ -52,13 +51,14 @@
     but simple PWM will do just fine today.
     You just need to set the proper frequency and duty cycle.
 
-    It's possible to calculate these parameters yourself, but we'we done that
+    You could calculate these parameters yourself, but we'we done that
     for you.\footnote{
         Our servo needs a pulse width of
         $1 \si{\milli\second}$ to $2 \si{\milli\second}$.
         With the PWM at $50 \si{\hertz}$, that's:
 
-        \begin{itemize}
+        \begin{itemize}[nolistsep]
+        \setlength\itemsep{0pt}
         \item minimum:
             ${0.001 \si{\second}} \times {50 \si{\hertz}} \times 100\% = 5\%$
         \item maximum:
@@ -68,7 +68,7 @@
         Converted to the $0...1024$ duty range, that's roughly $50$ to $100$.
         \emph{Roughly} – these cheap servos aren't too exact.
     }
-    Use `freq=50` and `duty` between `50` and `100`.
+    Use `freq=50` and `duty` of `50` to `100`.
 
 
 \section{Controlling the servo}
@@ -81,7 +81,7 @@
     pwm = PWM(Pin(17, Pin.OUT), freq=50, duty=75)
     \end{lstlisting}
 
-    Then, set the duty to turn the servo:
+    Then, set the duty cycle to turn the servo:
 
     \begin{lstlisting}
     pwm.duty(50)   # left
@@ -94,7 +94,7 @@
 
 \item
     Experiment! But if you decide go beyond these parameters and hear an
-    unusual buzzing sound from the servo, please return to `duty(50)` or reset
+    unusual buzzing sound from the servo, please return to `duty(75)` or reset
     the board to avoid damaging the servo.
 
 \item
@@ -108,9 +108,8 @@
         You'll need a watch.
     \end{comment}
 
-\clearpage
-
 % XXX: Temperature gauge
+%\clearpage
 
 \item
     Please return the board when you're done experimenting.
