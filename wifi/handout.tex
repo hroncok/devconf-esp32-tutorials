@@ -9,18 +9,14 @@
 
 \begin{document}
 
-\begin{enumerate}
-
-\item
-    You will need a set-up environment and an \abbr{ESP32} board.
-
-\section{Wi-Fi setup}
-
     The \abbr{ESP32}'s predecessor, \abbr{ESP8266}, was designed as a dedicated
     Wi-Fi chip,
     and the \abbr{ESP32} is also quite a capable Wi-Fi device.
     Let's take advantage of that!
 
+    You will need a set-up environment and an \abbr{ESP32} board.
+
+\begin{enumerate}
 
 \item
     The conference's peculiar Wi-Fi setup is quite inconvenient for
@@ -32,12 +28,13 @@
     import network
     ap = network.WLAN(network.AP_IF)
     ap.active(True)
-    ap.config(essid='<\emph{«your own name»}>', password='<\emph{«something secret»}>', channel=<\emph{«some small number»}>)
+    ap.config(essid='<\emph{«your own name»}>', password='<\emph{«something secret»}>',
+              channel=<\emph{«some small number»}>, authmode=network.AUTH_WPA2_PSK)
     \end{lstlisting}
 
     \begin{comment}
-        Ideally, run `nmcli d wifi` on your Linux computer to see occupied
-        Wi-Fi channels, and pick one you don't see.
+        Ideally, run `nmcli d wifi` on your computer to see occupied
+        Wi-Fi channels, and pick a channel you don't see.
     \end{comment}
 
     The `ifconfig` method can give you interface parameters – IP address,
@@ -84,11 +81,19 @@
 
     \begin{lstlisting}[escapeinside=<>]
     response = urequests.get('http://<\emph{«your.ip.address»}>:8000/<\emph{filename.txt}>')
-
     print(response.status_code)
     \end{lstlisting}
 
-    If the status code is 200 OK, see what the response text is:
+    If that gives you an `EHOSTUNREACH` error, you might need to lower your
+    firewall on this port.
+    For Fedora, punch a temporary hole using this command (the hole will be
+    closed on reboot, or with `firewall-cmd --reload`):
+
+    \begin{lstlisting}
+    firewall-cmd --add-port=8000/tcp
+    \end{lstlisting}
+
+    If you get a 200 (OK) status, see what the response text is:
 
     \begin{lstlisting}
     print(response.text)
@@ -101,17 +106,23 @@
 
 \item
     The HTTP(s) protocol is not very suitable for microcontrollers.
-    There are better ones available, such as MQTT, for which there are
-    libraries available.
+    There are better ones available, such as MQTT (for which there are
+    MicroPython libraries available).
 
     We, however, will use something even more low-level: UDP,
     an unreliable, connection-less unencrypted protocol.
 
-    This code works both on your computer and on the \abbr{ESP32}.
+    The same code should work both on your computer and on the \abbr{ESP32}.
+    Decide which one will send and which will receive data.
+    On the computer, you'll need to open up your firewall; for Fedora that's
+    `firewall-cmd --add-port=48334/udp`.
 
-    To send data, create a `SOCK_DGRAM` (UDP) socket and use `sendto`
+    To \emph{send} data, create a `SOCK_DGRAM` (UDP) socket and use `sendto`
     with a message and destination address.
-    You need to provide a unique port number – say, 48334 for $\mu$Python:
+    You need to provide a unique port number larger than 1000 – say, 48334
+    for $\mu$Python.
+
+    Here is example code for sending:
 
     \begin{lstlisting}[escapeinside=<>]
     import time
@@ -128,14 +139,13 @@
         time.sleep(1/2)
     \end{lstlisting}
 
-    To receive data on a computer, you need to \emph{bind} a `SOCK_DGRAM`
-    socket to a particular port. This way the operating system knows
-    which program to send data to.
+    To \emph{receive} data \emph{bind} a `SOCK_DGRAM` socket to a particular
+    port.
+    This way, on a computer, the operating system knows which program to send
+    data to.
+    You can also set a timeout, so if no message comes, your program won't hang.
 
-    It's also good to set a timeout, so if no message comes,
-    your program doesn't hang.
-
-    The IP address is not needed, though.
+    The IP address is not needed for receiving.
 
     \begin{lstlisting}[escapeinside=<>]
     import socket
@@ -157,12 +167,12 @@
     \end{lstlisting}
 
     On the \abbr{ESP32}, where your program is the only thing running,
-    the sender can use the \emph{broadcast address} `255.255.255.255` to send
-    to \emph{all} devices in the local network.
-    Also, you don't need to call `bind`.
+    the sender can send to \emph{all} devices in its local network with the
+    \emph{broadcast address} `255.255.255.255`.
+    Also, you don't need to call `bind` when receiving.
 
     Keep in mind the UDP connection is not encrpyted or authenticated.
-    Anyone can send anything and you won't know who a message is from.
+    Anyone can send anything and you won't even know who sent which message.
 
 \section{Connecting to existing Wi-Fi}
 
@@ -190,7 +200,7 @@
     \end{lstlisting}
 
 \item
-    There should be joystick broadcasting its state over Wi-Fi.
+    There should be a joystick broadcasting its state over Wi-Fi.
     Ask the staff for details.
 
     Take one of your other programs (with LEDs, motors, etc.)
