@@ -16,22 +16,15 @@
 
 \section{Wi-Fi setup}
 
-    The \abbr{ESP32} microcontroller evolved from the \abbr{ESP8266},
-    which was designed as a Wi-Fi communication chip for other devices.
-    It was widely used with Arduinos, for example.
-    But then, people that the ESP8266 is, in many respects, more powerful than
-    an Arduino, and started hacking on it directly.
-
-    The \abbr{ESP8266} manufacturer, Espressiv Systems, caught on and created
-    an even more powerful chip, this time tailored as a microcontroller.
-    That's the \abbr{ESP32}.
-
-    At its heart, it's still a Wi-Fi chip. Let's take advantage of that!
+    The \abbr{ESP32}'s predecessor, \abbr{ESP8266}, was designed as a dedicated
+    Wi-Fi chip,
+    and the \abbr{ESP32} is also quite a capable Wi-Fi device.
+    Let's take advantage of that!
 
 
 \item
     The conference's peculiar Wi-Fi setup is quite inconvenient for
-    microcontrollers, but we can make our own Wi-Fi network!
+    microcontrollers, but we can make our own network!
 
     Turn the \abbr{ESP32}'s into an access point (`AP_IF`):
 
@@ -81,7 +74,7 @@
     \end{lstlisting}
 
     Meanwhile, in MicroPython, import $\mu$requests – a minimal
-    implementation of Requests, Python's preferred HTTP client library:
+    reimplementation of Requests, a HTTP client library:
 
     \begin{lstlisting}
     import urequests
@@ -100,6 +93,112 @@
     \begin{lstlisting}
     print(response.text)
     \end{lstlisting}
+
+    Please keep in mind the HTTP connection is not encrpyted.
+    With some effort, anyone can impersonate your server.
+
+\section{UDP}
+
+\item
+    The HTTP(s) protocol is not very suitable for microcontrollers.
+    There are better ones available, such as MQTT, for which there are
+    libraries available.
+
+    We, however, will use something even more low-level: UDP,
+    an unreliable, connection-less unencrypted protocol.
+
+    This code works both on your computer and on the \abbr{ESP32}.
+
+    To send data, create a `SOCK_DGRAM` (UDP) socket and use `sendto`
+    with a message and destination address.
+    You need to provide a unique port number – say, 48334 for $\mu$Python:
+
+    \begin{lstlisting}[escapeinside=<>]
+    import time
+    import socket
+
+    address = ('<\emph{«destination IP address»}>', <\emph{48334}>)
+
+    sending_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    while True:
+        message = b'Hello'
+        print('Sending', message)
+        sending_socket.sendto(message, address)
+        time.sleep(1/2)
+    \end{lstlisting}
+
+    To receive data on a computer, you need to \emph{bind} a `SOCK_DGRAM`
+    socket to a particular port. This way the operating system knows
+    which program to send data to.
+
+    It's also good to set a timeout, so if no message comes,
+    your program doesn't hang.
+
+    The IP address is not needed, though.
+
+    \begin{lstlisting}[escapeinside=<>]
+    import socket
+    import time
+
+    address = ('', <48334>)
+
+    receiving_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    receiving_socket.bind(address)
+    receiving_socket.settimeout(1/2)
+
+    while True:
+        try:
+            message = receiving_socket.recv(1024)
+        except OSError:
+            print('No message')
+        else:
+            print('Got', message)
+    \end{lstlisting}
+
+    On the \abbr{ESP32}, where your program is the only thing running,
+    the sender can use the \emph{broadcast address} `255.255.255.255` to send
+    to \emph{all} devices in the local network.
+    Also, you don't need to call `bind`.
+
+    Keep in mind the UDP connection is not encrpyted or authenticated.
+    Anyone can send anything and you won't know who a message is from.
+
+\section{Connecting to existing Wi-Fi}
+
+\item
+    If there is an existing Wi-Fi network, you can connect to it as a “Station”
+    instead of creating an Access Point.
+    Use `STA_IF` in place of `AP_IF`, and `connect` in place of `config`.
+
+    MicroPython establishes the connection in the background.
+    Usually, you'll want to wait until `isconnected()` reports `True`.
+
+    \begin{lstlisting}[escapeinside=<>]
+    import network
+    import sleep
+
+    wlan = network.WLAN(network.STA_IF)
+    wlan.active(True)
+    wlan.connect('<\emph{«network name»}>', '<\emph{«password»}>')
+
+    while not wlan.isconnected():
+        print('Connecting....')
+        sleep(1)
+
+    print(wlan.ifconfig())  # Our IP address and other interface parameters
+    \end{lstlisting}
+
+\item
+    There should be joystick broadcasting its state over Wi-Fi.
+    Ask the staff for details.
+
+    Take one of your other programs (with LEDs, motors, etc.)
+    and let it react to the joystick's position.
+
+\item
+    Get a second \abbr{ESP32} and make it impersonate the joystick,
+    sending different data.
 
 \item
     Please return the gadgets when you're done experimenting.
