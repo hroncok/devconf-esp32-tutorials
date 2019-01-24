@@ -32,7 +32,7 @@ Other systems might be different – try your luck!
     You can use:
 
     \begin{lstlisting}[language=bash]
-    usermod -a -G $(whoami)
+    sudo usermod -a -G dialout $(whoami)
     \end{lstlisting}
 
     but make sure to login again after that
@@ -91,6 +91,8 @@ Other systems might be different – try your luck!
     If you see wall of random characters instead,
     locate and press the `EN` button on the device
     (it's near the USB port).
+    Chances are there is a program running;
+    use \kbd{Ctrl}+\kbd{c} to interrupt it if needed.
 
 \item
     Experiment with the interactive Python prompt. Is it Python?
@@ -117,7 +119,7 @@ Other systems might be different – try your luck!
     \end{lstlisting}
 
     Connect via `picocom`, then press the \emph{EN} button to see
-    what is happening. Use \kbd{Ctrl}+\kbd{c} to interrupt a running program.
+    what is happening. Remember, \kbd{Ctrl}+\kbd{c} interrupts a running program.
     Use \lstinline[emph=rm]|ampy -p /dev/ttyUSB0 rm main.py|
     to get rid of the file.
     Explore `ampy --help` to see what else is possible.

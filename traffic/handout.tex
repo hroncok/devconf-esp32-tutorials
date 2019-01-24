@@ -132,7 +132,7 @@
     You'll need an \abbr{ESP32} board with an \abbr{RGB} \abbr{LED} stripe
     \emph{and} a servo motor.
 
-    If you haven't controlled servos yet, do that activity first.
+    If you haven't controlled servos yet, \textbf{do that activity first}.
 
 \item
     First, think how railroad crossing signalization looks and functions.
@@ -189,7 +189,7 @@
     Find the numbers that work best for your gate.
 
     \begin{lstlisting}
-    pwm.duty(75)
+    pwm.duty(75)  # use 50..100 only
     \end{lstlisting}
 
     Don't forget to wait between starting the red lights and putting the gate down –
