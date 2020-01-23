@@ -47,10 +47,11 @@
 
 \section{Blinking the LED with a button}
 
-\item
-    Let's create a program that turns the LED on when the user is holding a button.
+    We'll create a program that turns the LED on when the user is holding a button.
     We'll use the integrated \emph{BOOT} button, which is connected to pin number 0.
-    Create an input Pin for it:
+
+\item
+    Create an input Pin for the button:
 
     \begin{lstlisting}
     button = Pin(0, Pin.IN)
@@ -134,14 +135,15 @@
     \end{lstlisting}
 
     The frequency (`freq`) determines how fast the LED will blink.
-    The duty determines the proportion of time where the LED is on:
-    0 means never; 1023 means always (100\%).
+    The duty determines the proportion of time where the LED is on.
+    0 means never;
+    1023 means always (100\%);
     512 means equal time on and off (50\%).
 
     \begin{comment}
     When experimenting, mind the fact that humans don't perceive light
     intensity linearly.
-    A duty cycle of 256 (25\%) is a good “middle” value.
+    A duty cycle of 256 (25\%) is a good “middle” value for a light.
     \end{comment}
 
     PWM is not blocking -- you can do other things in Python while it's running.

@@ -9,7 +9,17 @@
 \begin{document}
 
 These instructions are for Fedora.
-Other systems might be different – try your luck!
+Other systems might be different; try your luck and ask if things
+don't work!
+
+\begin{comment}
+    The boards have plain firmware from
+    \url{http://micropython.org/download}
+    with just a few additional drivers.
+    These activities are quite low-level on purpose;
+    it is possible to find nicer-to-use libraries
+    for most of the tasks presented here.
+\end{comment}
 
 \begin{enumerate}
 
@@ -27,6 +37,9 @@ Other systems might be different – try your luck!
     and `ampy` can be installed via
     `python3 -m pip install --user adafruit-ampy`.
 
+    If you are not using Linux, it might be possible to get things to work.
+    Ask booth attendants for help.
+
 \item
     Get yourself to the `dialout` group.
     You can use:
@@ -36,7 +49,8 @@ Other systems might be different – try your luck!
     \end{lstlisting}
 
     but make sure to login again after that
-    (e.g. \lstinline|su - $(whoami)|).
+    (e.g. \lstinline|su - $(whoami)| for the current shell, or log out and
+    back in).
     Verify that you are in the group by running the `groups` command.
 
     \begin{comment}
@@ -44,24 +58,18 @@ Other systems might be different – try your luck!
         and gives you full and direct access to serial ports.
     \end{comment}
 
-\item
-    You need drivers for the on-board \abbr{CP2102} \abbr{USB}-serial adapter.
-    If you are using Linux, you have them.
-    If you are not using Linux, may the force be with you
-    (ask booth attendants for help).
-
 \section{Talking to the board}
 
     \begin{comment}
         To protect delicate pins and make connections easier,
-        the black \abbr{ESP32} devkit is plugged into a white OctopusLab Robot~Board.
+        the black \abbr{ESP32} devkit is plugged into a white OctopusLab Robot~Board, possibly with some extra chips.
         Please ask if you want to unplug it.
     \end{comment}
 
 \item
     Connect the \abbr{ESP32} board via an \abbr{USB} cable.
-    Sometimes, the cable or even the board can be faulty,
-    use `dmesg | tail` to verify your system can actually see the board.
+    Sometimes, the cable or even the board can be faulty.
+    Use `dmesg | tail` to verify your system can actually see the board.
     Ask for help if it doesn't.
 
 \item
@@ -69,18 +77,15 @@ Other systems might be different – try your luck!
     The full command is:
 
     \begin{lstlisting}[language=bash]
-    picocom -b 115200 --flow n /dev/ttyUSB0
+    picocom -b 115200 /dev/ttyUSB0
     \end{lstlisting}
 
-    The first number specifies the baud rate -- a speed of communication over serial line.
-    All our \abbr{ESP32} boards communicate using this baud rate.
-    We disable the flow control of the serial-port.
-    That should be the default,
-    but explicit is better than implicit.
-
-    Lastly, we connect to `/dev/ttyUSB0`.
-    That's the file representing our device (or the serial line to it).
-    The filename may be different, consult the `dmesg | tail` output.
+    We connect to `/dev/ttyUSB0`, the file representing our device (or the
+    serial line to it).
+    The filename may be different, consult the `dmesg | tail` output if you get
+    a file-not-found error.
+    The `-b` number specifies the baud rate -- speed of communication over the
+    serial line.
 
     If you need to use `screen`,
     the command is `screen /dev/ttyUSB0 115200`.
@@ -98,38 +103,49 @@ Other systems might be different – try your luck!
     Experiment with the interactive Python prompt. Is it Python?
     Can you `print` stuff? Is something missing?
 
-    If you prefer to code in your favorite text editor,
-    you can use \kbd{Ctrl}+\kbd{e} to activate the \emph{paste mode}.
-
 \item
     To exit `picocom`, hold the \kbd{Ctrl} key, press \kbd{a},
     then \kbd{q} and lift the \kbd{Ctrl} key.
     Alternatively, unplug the board.
 
-\section{The board's filesystem}
+\section{Scripts and the board's filesystem}
+
+\item
+    For more complex software, write a script in a text editor.
+    For example, save the following as `hello.py`:
+
+    \begin{lstlisting}[language=python]
+    for i in range(10):
+        print('hello world')
+    \end{lstlisting}
+
+    Then run on the board using:
+
+    \begin{lstlisting}[language=bash]
+    ampy -p /dev/ttyUSB0 run hello.py
+    \end{lstlisting}
+
+    Make sure `picocom` is not open when using `ampy` (and vice versa).
 
 \item
     The board has a simple filesystem.
-    To execute a file on the board when the board starts,
-    write a program on your computer and save it as `main.py`.
-    Use `ampy` to put the file into the board:
+    To run code when the board starts up,
+    write a script named `main.py` and store it on the board (with `put`
+    instead of `get`):
 
     \begin{lstlisting}[language=bash]
     ampy -p /dev/ttyUSB0 put main.py
     \end{lstlisting}
 
-    Connect via `picocom`, then press the \emph{EN} button to see
-    what is happening. Remember, \kbd{Ctrl}+\kbd{c} interrupts a running program.
+    Connect via `picocom`, then press the \emph{EN} button restart the device
+    and see what is happening. Remember, \kbd{Ctrl}+\kbd{c} interrupts a
+    running program.
     Use \lstinline[emph=rm]|ampy -p /dev/ttyUSB0 rm main.py|
     to get rid of the file.
     Explore `ampy --help` to see what else is possible.
 
 \item
     Congratulations, you've made it! Now you are ready to pick a task.
-
-    \begin{comment}
-        Don't forget to ask for stickers as a reward for your efforts!
-    \end{comment}
 
 \item
     Please return the board when you're done experimenting.
