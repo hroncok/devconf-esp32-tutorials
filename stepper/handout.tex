@@ -59,18 +59,19 @@
     i2c = I2C(scl=Pin(22, Pin.OUT), sda=Pin(21, Pin.OUT))
     \end{lstlisting}
 
-    See which devices are connected to this I$^2$C bus.
+    Next, scan for devices connected to this I$^2$C bus.
     You already know there is one, but a `scan` will also tell you its address:
 
     \begin{lstlisting}
     print(i2c.scan())
     \end{lstlisting}
 
-    Hopefully, you got the address `35`.
-    Send a one-byte message to it:
+    Send a one-byte message of 255 to it.
+    This assumess you got address `35`; adjust if it's different:
 
     \begin{lstlisting}
-    i2c.writeto(35, bytes([255]))
+    address = 35
+    i2c.writeto(address, bytes([255]))
     \end{lstlisting}
 
     That should turn the digit fully on.
@@ -92,14 +93,6 @@
     value = 0b11111111
     \end{lstlisting}
 
-    Similarly, the `0x` prefix works for hexadecimal numbers.
-    I$^2$C addresses are traditionally written in hex, so you'd write 25 as
-    `0x23`:
-
-    \begin{lstlisting}
-    i2c.writeto(0x23, bytes([value]))
-    \end{lstlisting}
-
     Change some of `value`'s `1` bits to `0`s, and try forming a number!
 
 \item
@@ -118,10 +111,11 @@
 \section{Some theory on stepper motors}
 
 \item
-    A \emph{stepper motor} is a device that rotate in discrete steps.
+    A \emph{stepper motor} is a device that rotates in discrete steps.
 
-    Steppers allow precise continuous movement: in printers, 3D printers
-    and plotters, automated window blinds, car window wipers and so on.
+    Steppers allow precise continuous movement.
+    They are used in printers, 3D printers and plotters, automated window
+    blinds, car window wipers and so on.
 
     Steppers work by attracting the rotating center, the \emph{rotor}, to
     strategically placed electromagnets around it.
@@ -192,7 +186,7 @@
     1001
     \end{lstlisting}
 
-    To make this visible, delay for $100 \si{\milli\second}$ after setting each
+    To make this visible, delay for $300 \si{\milli\second}$ after setting each
     pattern.
 
     Let the booth staff check the result and give you a stepper motor and
@@ -208,7 +202,7 @@
     Turn $90 \si{\degree}$ in the opposite direction.
 
 \item
-    Look at the 3D printer at the next booth to see how a stepper's precise
+    Look at the 3D printer at another booth to see how a stepper's precise
     turning is converted to linear motion.
 
 \item

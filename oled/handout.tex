@@ -4,15 +4,42 @@
 
 \documentclass{../tutorial}
 
+\newcommand\defbitmap{
+    \setlength{\fboxsep}{.05em}
+    \lstset{literate=%
+        {1}{{%
+            \colorbox{black!60!white}{%
+                \color{white}%
+                \rule[-.1\baselineskip]{0pt}{.6\baselineskip}%
+                1%
+            }%
+        }}{1}%
+        {0}{{%
+            \colorbox{white}{%
+                \rule[-.1\baselineskip]{0pt}{.6\baselineskip}%
+                0%
+            }%
+        }}{1}
+        {0b}{{0b}}{2}
+    }
+}
+
 \title{Drawing to an OLED display with MicroPython on \abbr{ESP32}}
 
 \begin{document}
 
+    This one is fun!
+    (But honestly, you could just be using a computer monitor).
+
+    You will need a set-up environment and an \abbr{ESP32} board
+    with an I$^2$C OLED display.
+
 \begin{enumerate}
 
 \item
-    This one is fun, but honestly, you could just be using a computer monitor.
-    Let's keep it short.
+    Before you can use the display, you need a bit of setup code
+    to specify the kind and size of the display, which pins it is
+    connected to, and its I$^2$C address:
 
     \begin{lstlisting}
     from machine import Pin, I2C
@@ -21,13 +48,88 @@
     i2c = I2C(scl=Pin(22, Pin.OUT), sda=Pin(21, Pin.OUT))
 
     oled = SSD1306_I2C(width=128, height=64, i2c=i2c, addr=0x3c)
+    \end{lstlisting}
 
-    oled.line(0, 0, 64, 64, 1)
-    oled.text("Hello World", 0, 0, 1)
-    oled.rect(110, 2, 10, 5, 1)
-    oled.fill_rect(100, 20, 10, 5, 1)
+\item
+    To draw graphics, MicroPython keeps a copy of the screen's contents in
+    memory in a `FrameBuffer`, which provides simple graphics commands
+    such as `line`, `rect` and `text` to manipulate the buffer.
+    The `SSD1306_I2C` driver has this API plus a `show` command to send
+    the saved picture to the screen.
+
+    \begin{lstlisting}
+    oled.pixel(10, 20, 1)               # x, y, color
+    oled.line(0, 0, 64, 64, 1)          # x1, y1, x2, y2, color
+    oled.text("Hello World", 0, 0, 1)   # text, x, y, color
+    oled.rect(110, 2, 10, 5, 1)         # x, y, width, height, color
+    oled.fill_rect(100, 20, 10, 5, 1)   # x, y, width, height, color
     oled.show()
     \end{lstlisting}
+
+\item
+    You can also use a `FrameBuffer` with a chunk of memory,
+    like Python's `bytearray`, and copy (`blit`) it into another `FrameBuffer`,
+    like the screen.
+
+    You can define a monochrome bitmap with `0`s and `1`s using Python's
+    binary literals.
+    What's not always straightforward is matching the bits up with the
+    framebuffer's parameters.
+    Try this bitmap with a height and width of 8\,px, and the format
+    `MONO_HLSB` – Monochrome, Horizontal, Least significant Bit first:
+
+    {
+    \defbitmap
+    \begin{lstlisting}
+    heart = [
+        0b00000000,
+        0b00110110,
+        0b01111111,
+        0b01111111,
+        0b00111110,
+        0b00011100,
+        0b00001000,
+        0b00000000,
+    ]
+    \end{lstlisting}
+    }
+    \begin{lstlisting}
+    import framebuf
+    icon = framebuf.FrameBuffer(bytearray(heart), 8, 8, framebuf.MONO_HLSB)
+
+    oled.blit(icon, 0, 0)
+    oled.show()
+    \end{lstlisting}
+
+\item
+    Or try to write a wider bitmap:
+
+    {
+    \defbitmap
+    \begin{lstlisting}[escapechar=!]
+    invader = [
+        0b00000100, 0b00010000,
+        0b00000010, 0b00100000,
+        0b00000111, 0b11110000,
+        0b00001101, 0b11011000,
+        0b00011111, 0b11111100,
+        0b00010111, 0b11110100,
+        0b00010100, 0b00010100,
+        0b00000011, 0b01100000,
+    ]
+    \end{lstlisting}
+    }
+    \begin{lstlisting}
+    sprite = framebuf.FrameBuffer(bytearray(invader), 16, 8, framebuf.MONO_HLSB)
+    oled.blit(sprite, 0, 16)
+    oled.show()
+    \end{lstlisting}
+
+\item
+    Let your imagination run free!
+
+\item
+    Please return the board when you're done experimenting.
 
 \end{enumerate}
 \end{document}

@@ -64,6 +64,8 @@
     backgroundcolor=\color{black!10!white},
     frame=single,
     framerule=0pt,
+    keywordstyle=\color{black!50!blue},
+    stringstyle=\color{black!50!orange},
 }
 
 % Additional simple commands
@@ -97,7 +99,7 @@
                     -| (axis cs: \one, 1)
                     -| (axis cs: \zero, 0)
                 }
-                -| (axis cs:14, 0);
+                ;%-| (axis cs:14, 0);
             \addplot+[mark=none,line width=0pt]
                 coordinates {
                     (0,0)

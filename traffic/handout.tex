@@ -12,7 +12,7 @@
 
 \item
     You will need a set-up environment and an \abbr{ESP32} board
-    with an \abbr{RGB} \abbr{LED} stripe.
+    with an \abbr{RGB} \abbr{LED} strip.
 
 \section{Some theory}
 
@@ -23,7 +23,7 @@
     each containing 3 LEDs: red, green and blue.
 
     Each of those LEDs can vary in intensity from \lstinline|0| to \lstinline|255|
-    and by combining them, you can show a lot of colors.
+    and by combining them, you can show over 16 million distinct colors.
     This roughly matches what the human eye can distinguish,
     so it has been called the \emph{True Color}.
 
@@ -35,7 +35,7 @@
 
 \item
     MicroPython on the \abbr{ESP32} board already has a high-level class for
-    our LED stripe, called \lstinline|NeoPixel|. Import it:
+    our LED strip, called \lstinline|NeoPixel|. Import it:
 
     \begin{lstlisting}
     from machine import Pin
@@ -43,7 +43,8 @@
     \end{lstlisting}
 
     In order to setup a \lstinline|NeoPixel| instance,
-    you'll need to provide an output data pin \#15 and the number of cells.
+    you'll need to provide the output data pin, \#15 on the board,
+    and the number of cells, 8.
 
     \begin{lstlisting}
     datapin = Pin(15, Pin.OUT)
@@ -121,7 +122,7 @@
 
 \item
     You've made it!
-    Get yourself some swag reward from the booth staff and turn the page over.
+    For a different challenge, turn the page over.
 
 \clearpage
 
@@ -161,15 +162,12 @@
     \item (repeat)
     \end{enumerate}
 
-    Take in mind that you need some time before lowering the gate,
-    or accidents can happen.
-
 \item
     Pick 3 LED cells.
     Either have them in a row or get creative and carefully twist the stripe
     to create 2 rows.
     Decide which cells represent what lights.
-    For starters, make them all shine in their respective colors.
+    For starters, make them all shine continuously in their respective colors.
 
 \item
     Create an infinite loop that simulates the signal lights.

@@ -1,0 +1,81 @@
+% arara: lualatex
+% arara: lualatex
+% Typeset using lualatex
+
+\documentclass{../tutorial}
+\usepackage{wrapfig}
+
+\title{Measuring Temperature with MicroPython on the \abbr{ESP32}}
+
+\begin{document}
+
+    One of the cheapest ways to measure temperature is the \abbr{DS18S20}
+    digital thermometer using a one-wire protocol.
+
+    You will need a set-up environment and an \abbr{ESP32} board with
+    this thermometer.
+
+\begin{enumerate}
+
+\item
+    If the thermometer is not connected, connect it to \abbr{DEV1} (pin \#32)
+    and the power and ground pins around it.
+
+    Make \emph{extra sure} the round side is facing \emph{away} from the
+    \abbr{ESP32}.
+
+\item
+    Like with I$^2$C, a driver for the \abbr{DS18S20}'s protocol is included
+    in the MicroPython firmware.
+    Actually, there are two drivers: one for the wire protocol, and one for the
+    specific thermometer.
+    Import them both, and scan for connected thermometers.
+    You should only get one, though the protocol supports connecting
+    several thermometers to one wire.
+
+    \begin{lstlisting}
+    from machine import Pin
+    import onewire
+    from ds18x20 import DS18X20
+
+    pin = Pin(32, Pin.IN)
+    ds = DS18X20(onewire.OneWire(pin))
+    sensors = ds.scan()
+    print(sensors)
+    \end{lstlisting}
+
+\item
+    To read the temperature, you'll need to initiate the measurement with
+    a command called `convert_temp`, then wait at least $750 \si{\milli\second}$
+    \footnote{There is a polling \abbr{API} too, but waiting works well enough.}
+    for processing before reading the data.
+
+    The device gives temperature readouts in $\si{\celsius}$.
+
+    \begin{lstlisting}
+    from time import sleep_ms
+
+    ds.convert_temp()
+    sleep_ms(750)
+    temperature = ds.read_temp(sensors[0])
+    print("It's", temperature, 'degrees C')
+    \end{lstlisting}
+
+
+\item
+    Hold the sensor in your fingers to heat it up a bit, then
+    measure the temperature again.
+
+
+\item
+    If you already know how to light stuff up or make stuff turn,
+    indicate the temperature using that stuff!
+
+
+\item
+    Please return the gadgets when you're done experimenting.
+
+\end{enumerate}
+\end{document}
+
+    \begin{lstlisting}
